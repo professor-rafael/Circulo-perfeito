@@ -1,73 +1,89 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Circulo perfeito</title>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
-    </head>
-    <body bgcolor="black">
-        <script>
-            var c;
-            var scl = 0.01;
-            var xoff = 0;
-            var cnv;
+<html lang="pt-br">
+<head>
+    <title>Circulo perfeito</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var c;
+        var scl = 0.01;
+        var xoff = 0;
+        var cnv;
 
-            class Circle {
-                constructor(numPoints, rad){
-                    this.numPoints = numPoints;
-                    this.rad = rad; // Adicionei o sinal de igual aqui
-                    this.pos = createVector(width/2, height/2); // Corrigido
-                    this.points = [];
-                    this.setPoints();
+        class Circle {
+            constructor(numPoints, rad) {
+                this.numPoints = numPoints;
+                this.rad = rad;
+                this.pos = createVector(width / 2, height / 2);
+                this.points = [];
+                this.setPoints();
+                this.plus = 1;
+            }
+
+            setPoints() {
+                this.points = [];
+                for (let i = 0; i < this.numPoints; i++) {
+                    this.points.push(p5.Vector.fromAngle(PI / 2 + TWO_PI * i / this.numPoints).mult(this.rad).add(this.pos));
+                }
+            }
+
+            update() {
+                if (this.plus === 1) {
+                    this.numPoints += 0.07;
+                } else {
+                    this.numPoints -= 0.07;
+                }
+                if (this.numPoints > 60) {
+                    this.plus = 0;
+                } else if (this.numPoints < 10) {
                     this.plus = 1;
                 }
 
-                setPoints() {
-                    this.points = [];
-                    for (let i = 0; i < this.numPoints; i++) {
-                        this.points.push(p5.Vector.fromAngle(PI/2 + TWO_PI * i / this.numPoints).mult(this.rad).add(this.pos)); // Corrigido
+                this.setPoints();
+                stroke(50 + noise(xoff) * 55, 50 + noise(100 + xoff) * 55, 50 + noise(10000 + xoff) * 255);
+                strokeWeight(1);
+                for (let i = 0; i < this.points.length; i++) {
+                    for (let j = i + 1; j < this.points.length; j++) {
+                        line(this.points[i].x, this.points[i].y, this.points[j].x, this.points[j].y);
                     }
                 }
-
-                update() {
-                    if (this.plus === 1){ // Corrigido
-                        this.numPoints += 0.07;
-                    } else {
-                        this.numPoints -= 0.07;
-                    }
-                    if (this.numPoints > 60) {
-                        this.plus = 0;
-                    } else if (this.numPoints < 0) {
-                        this.plus = 1;
-                    }
-
-                    this.setPoints();
-                    stroke(50 + noise(xoff) * 255, 50 + noise(1000 + xoff) * 255, 50 + noise(10000 + xoff) * 255);
-                    strokeWeight(1);
-                    for (let i = 0; i < this.points.length; i++) {
-                        for (let j = i + 1; j < this.points.length; j++) {
-                            if (i !== j) { // Corrigido
-                                line(this.points[i].x, this.points[i].y, this.points[j].x, this.points[j].y);
-                            }
-                        }
-                    }
-                    fill(255);
-                    xoff += scl;
-                }
+                fill(255);
+                xoff += scl;
             }
+        }
 
-            function setup() {
-                if (displayWidth > displayHeight) {
-                    cnv = createCanvas(500, 500, P2D);
-                } else {
-                    cnv = createCanvas(displayWidth * 0.95, displayHeight * 0.7, P2D);
-                }
-                c = new Circle(0, width/2);
+        function setup() {
+            if (displayWidth > displayHeight) {
+                cnv = createCanvas(500, 500, P2D);
+            } else {
+                cnv = createCanvas(displayWidth * 0.95, displayHeight * 0.7, P2D);
             }
+            c = new Circle(0, width / 2);
+        }
 
-            function draw() {
-                background(0);
-                c.update();
-            }
-        </script>
-    </body>
+        function draw() {
+            background(0);
+            c.pos.set(width / 2, height / 2); // Manter o círculo centralizado
+            c.update();
+        }
+
+        function mousePressed() {
+            c.rad = random(50, 200); // Muda o raio para um valor aleatório
+        }
+    </script>
+</body>
 </html>
